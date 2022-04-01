@@ -4,9 +4,31 @@
 Screen recorder plugin for Flutter. It currently only works on Android operating system. IOS operating system will be supported in the near future.
 
 
-[![pubdev](https://img.shields.io/badge/pub-de__screen__recorder-blue)](https://pub.dev/packages/ed_screen_recorder)
+[![pubdev](https://img.shields.io/badge/pub-de__screen__recorder-blue)]()
 
 [!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/erendemir)
+## Ekler
+
+android/app/build.gradle
+```dart
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation 'com.github.HBiSoft:HBRecorder:2.0.3'
+    implementation 'androidx.appcompat:appcompat:1.4.1'
+}
+```
+
+android/app/src/main/AndroidManifest.xml
+```xml
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.example">
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="28" tools:ignore="ScopedStorage" />
+    <uses-permission android:name="android.permission.WRITE_INTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+```
+
+  
 ## Usage/Examples
 
 ```dart
@@ -21,15 +43,23 @@ void initState() {
     screenRecorder = ScreenRecorder();
 }
 
-Future<void> startRecord({required String fileName}) async {
-    var startResponse = await screenRecorder?.startRecordScreen(
-        fileName: "Eren",
-        audioEnable: false,
+  Future<void> startRecord({required String fileName}) async {
+    var response = await edScreenRecorder?.startRecordScreen(
+      fileName: fileName,
+      audioEnable: false,
     );
-}
-Future<void> stopRecord() async {
-    var stopResponse = await screenRecorder?.stopRecord();
-}
+
+    setState(() {
+      _response = response;
+    });
+  }
+
+  Future<void> stopRecord() async {
+    var response = await edScreenRecorder?.stopRecord();
+    setState(() {
+      _response = response;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
