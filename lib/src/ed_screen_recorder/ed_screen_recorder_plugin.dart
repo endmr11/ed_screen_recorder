@@ -1,4 +1,3 @@
-
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
@@ -12,7 +11,6 @@ import '../models/record_output_model.dart';
 
 class EdScreenRecorder {
   static const MethodChannel _channel = MethodChannel('ed_screen_recorder');
-
 
   /// [FileWatcher] It monitors changes to contents of directories and sends notifications when files have been added, removed, or modified.
   FileWatcher? watcher;

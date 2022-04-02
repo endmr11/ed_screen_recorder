@@ -1,7 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 
-RecordOutput recordOutputFromJson(String str) => RecordOutput.fromJson(json.decode(str));
+RecordOutput recordOutputFromJson(String str) =>
+    RecordOutput.fromJson(json.decode(str));
 
 String recordOutputToJson(RecordOutput data) => json.encode(data.toJson());
 
