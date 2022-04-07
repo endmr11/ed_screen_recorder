@@ -137,7 +137,17 @@ public class EdScreenRecorderPlugin implements FlutterPlugin, ActivityAware, Met
 
     @Override
     public boolean onActivityResult(int requestCode, int resultCode, Intent data) {
-        hbRecorder.startScreenRecording(data, resultCode, activity);
+
+        if (requestCode == SCREEN_RECORD_REQUEST_CODE ) {
+           if (resultCode == Activity.RESULT_OK) {
+                if(data!=null){
+                    if(resultCode == Activity.RESULT_OK) {
+                        hbRecorder.startScreenRecording(data, resultCode, activity);
+                    }  
+                }
+            }
+        }
+       
         return true;
     }
 
