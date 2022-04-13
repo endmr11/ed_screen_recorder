@@ -1,7 +1,7 @@
 
 # ED Flutter Screen Recorder
 
-Screen recorder plugin for Flutter. It currently only works on Android operating system. IOS operating system will be supported in the near future.
+Screen recorder plugin for Flutter. Supports IOS and Android devices.
 
 
 [![pubdev](https://img.shields.io/badge/pub-de__screen__recorder-blue)](https://pub.dev/packages/ed_screen_recorder)
