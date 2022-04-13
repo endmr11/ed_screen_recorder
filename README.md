@@ -108,7 +108,16 @@ Path Provider
 A Flutter plugin for finding commonly used locations on the filesystem. [URL](https://pub.dev/packages/path_provider)
 
 
-  
+## Contributors
+
+Thanks my friends Anıl and Mehmet for contributed.
+
+mskayali [!["github"](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)](https://github.com/mskayali) 
+
+anilkayi  [!["github"](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)](https://github.com/anilkayi)
+
+
+
 ## Features
 
 - Custom Audio Record
@@ -124,7 +133,7 @@ If you have any feedback, please contact us at erndemir.1@gmail.com.
   
 ## Roadmap
 
-- IOS operating system support.
+- IOS operating system support. !["check"](https://img.shields.io/badge/-%E2%9C%93-green)
 
 - Code optimization.
 
