@@ -31,7 +31,7 @@ android/app/src/main/AndroidManifest.xml
 You only need add the permission message on the Info.plist
 
 ```
-    <key>NSPhotoLibraryUsageDescription</key>
+  <key>NSPhotoLibraryUsageDescription</key>
 	<string>Save video in gallery</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Save audio in video</string>
@@ -121,6 +121,8 @@ A Flutter plugin for finding commonly used locations on the filesystem. [URL](ht
 ## Contributors
 
 Thanks my friends Anıl and Mehmet for contributed.
+
+Author: endmr11 [!["github"](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)](https://github.com/endmr11)
 
 mskayali [!["github"](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)](https://github.com/mskayali) 
 
