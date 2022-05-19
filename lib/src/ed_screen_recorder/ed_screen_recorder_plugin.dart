@@ -21,6 +21,7 @@ class EdScreenRecorder {
   /// On the front end we can see this result as [Map] .
   Future<Map<String, dynamic>> startRecordScreen(
       {required String fileName,
+      String? dirPathToSave,
       bool? addTimeCode = true,
       String? fileOutputFormat = "MPEG_4",
       String? fileExtension = "mp4",
@@ -33,6 +34,7 @@ class EdScreenRecorder {
     var response = await _channel.invokeMethod('startRecordScreen', {
       "audioenable": audioEnable,
       "filename": fileName,
+      "dirpathtosave":dirPathToSave,
       "addtimecode": addTimeCode,
       "videoframe": videoFrame,
       "videobitrate": videoBitrate,

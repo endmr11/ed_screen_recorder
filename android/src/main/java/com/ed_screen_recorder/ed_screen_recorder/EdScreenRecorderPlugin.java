@@ -14,6 +14,7 @@ import com.hbisoft.hbrecorder.HBRecorderListener;
 
 import org.json.JSONObject;
 
+import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -47,6 +48,7 @@ public class EdScreenRecorderPlugin implements FlutterPlugin, ActivityAware, Met
     private HBRecorder hbRecorder;
     boolean isAudioEnabled;
     String fileName;
+    String dirPathToSave;
     boolean addTimeCode;
     String filePath;
     int videoFrame;
@@ -103,6 +105,7 @@ public class EdScreenRecorderPlugin implements FlutterPlugin, ActivityAware, Met
             try {
                 isAudioEnabled = call.argument("audioenable");
                 fileName = call.argument("filename");
+                dirPathToSave = call.argument("dirpathtosave");
                 addTimeCode = call.argument("addtimecode");
                 videoFrame = call.argument("videoframe");
                 videoBitrate = call.argument("videobitrate");
@@ -111,7 +114,7 @@ public class EdScreenRecorderPlugin implements FlutterPlugin, ActivityAware, Met
                 videoHash = call.argument("videohash");
                 startDate = call.argument("startdate");
                 customSettings(videoFrame, videoBitrate, fileOutputFormat);
-                setOutputPath(addTimeCode, fileName);
+                setOutputPath(addTimeCode, fileName,dirPathToSave);
                 success = startRecordingScreen();
             } catch (Exception e) {
                 Map<Object, Object> dataMap = new HashMap<Object, Object>();
@@ -139,7 +142,7 @@ public class EdScreenRecorderPlugin implements FlutterPlugin, ActivityAware, Met
     public boolean onActivityResult(int requestCode, int resultCode, Intent data) {
 
         if (requestCode == SCREEN_RECORD_REQUEST_CODE ) {
-           if (resultCode == Activity.RESULT_OK) {
+        if (resultCode == Activity.RESULT_OK) {
                 if(data!=null){
                     if(resultCode == Activity.RESULT_OK) {
                         hbRecorder.startScreenRecording(data, resultCode, activity);
@@ -147,7 +150,6 @@ public class EdScreenRecorderPlugin implements FlutterPlugin, ActivityAware, Met
                 }
             }
         }
-       
         return true;
     }
 
@@ -231,10 +233,17 @@ public class EdScreenRecorderPlugin implements FlutterPlugin, ActivityAware, Met
         hbRecorder.setOutputFormat(fileOutputFormat);
     }
 
-    private void setOutputPath(boolean addTimeCode, String fileName) throws IOException {
+    private void setOutputPath(boolean addTimeCode, String fileName,String dirPathToSave) throws IOException {
         hbRecorder.setFileName(generateFileName(fileName, addTimeCode));
-        hbRecorder.setOutputPath(flutterPluginBinding.getApplicationContext().getExternalCacheDir().getAbsolutePath());
-        filePath = flutterPluginBinding.getApplicationContext().getExternalCacheDir().getAbsolutePath() + "/" + generateFileName(fileName, addTimeCode);
+        if (dirPathToSave != null && dirPathToSave !="") {
+            File dirFile = new File(dirPathToSave);
+            hbRecorder.setOutputPath(dirFile.getAbsolutePath());
+            filePath = dirFile.getAbsolutePath() + "/" + generateFileName(fileName, addTimeCode);
+        }else{
+            hbRecorder.setOutputPath(flutterPluginBinding.getApplicationContext().getExternalCacheDir().getAbsolutePath());
+            filePath = flutterPluginBinding.getApplicationContext().getExternalCacheDir().getAbsolutePath() + "/" + generateFileName(fileName, addTimeCode);
+        }
+
     }
 
     private String generateFileName(String fileName, boolean addTimeCode) {

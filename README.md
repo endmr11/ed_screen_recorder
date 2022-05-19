@@ -54,8 +54,11 @@ void initState() {
 }
 
   Future<void> startRecord({required String fileName}) async {
+    // Directory tempDir = await getTemporaryDirectory();
+    // String tempPath = tempDir.path;
     var response = await edScreenRecorder?.startRecordScreen(
       fileName: fileName,
+      dirPathToSave: tempPath, //Optional. It will save the video there when you give the file path with whatever you want.
       audioEnable: false,
     );
 
@@ -113,9 +116,7 @@ UUID
 
 Simple, fast generation of RFC4122 UUIDs. [URL](https://pub.dev/packages/uuid)
 
-Path Provider
 
-A Flutter plugin for finding commonly used locations on the filesystem. [URL](https://pub.dev/packages/path_provider)
 
 
 ## Contributors
@@ -131,22 +132,14 @@ anilkayi  [!["github"](https://img.shields.io/badge/GitHub-100000?style=for-the-
 
 
 ## Features
-
+- IOS operating system support. !["check"](https://img.shields.io/badge/-%E2%9C%93-green)
+- Custom File Path-Directory !["check"](https://img.shields.io/badge/-%E2%9C%93-green)
 - Custom Audio Record
 - Custom Video Frame
-- Custom File Name
-
+- Code optimization.
 
   
 ## Feedback
 
 If you have any feedback, please contact us at erndemir.1@gmail.com.
 
-  
-## Roadmap
-
-- IOS operating system support. !["check"](https://img.shields.io/badge/-%E2%9C%93-green)
-
-- Code optimization.
-
-  

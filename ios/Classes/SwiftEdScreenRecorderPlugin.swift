@@ -14,6 +14,7 @@ public class SwiftEdScreenRecorderPlugin: NSObject, FlutterPlugin {
   var videoWriterInput : AVAssetWriterInput?
 
   var fileName: String = ""
+    var dirPathToSave:NSString = ""
   var isAudioEnabled: Bool! = false;
   var addTimeCode: Bool! = false;
   var filePath: NSString = "";
@@ -43,6 +44,7 @@ public class SwiftEdScreenRecorderPlugin: NSObject, FlutterPlugin {
         let args = call.arguments as? Dictionary<String, Any>
         self.isAudioEnabled=((args?["audioenable"] as? Bool?)! ?? false)!
         self.fileName=(args?["filename"] as? String)!+".mp4"
+        self.dirPathToSave = ((args?["dirpathtosave"] as? NSString) ?? "")
         self.addTimeCode=((args?["addtimecoe"] as? Bool?)! ?? false)!
         self.videoFrame=(args?["videoframe"] as? Int)!
         self.videoBitrate=(args?["videobitrate"] as? Int)!
@@ -63,7 +65,7 @@ public class SwiftEdScreenRecorderPlugin: NSObject, FlutterPlugin {
         } else {
             height = Int32(height as! Int32);
         }
-        self.success=Bool(startRecording(width: width as! Int32 ,height: height as! Int32));
+        self.success=Bool(startRecording(width: width as! Int32 ,height: height as! Int32,dirPathToSave:(self.dirPathToSave as NSString) as String));
         self.startDate=Int(NSDate().timeIntervalSince1970 * 1_000)
         myResult = result
 
@@ -112,12 +114,17 @@ public class SwiftEdScreenRecorderPlugin: NSObject, FlutterPlugin {
     return String((0..<length).map{ _ in letters.randomElement()! })
   }
 
-  @objc func startRecording(width: Int32, height: Int32) -> Bool {
+    @objc func startRecording(width: Int32, height: Int32,dirPathToSave:String) -> Bool {
      var res : Bool = true
     if(recorder.isAvailable){
         NSLog("startRecording: w x h = \(width) x \(height) pixels");
-        self.filePath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0] as NSString
-        self.videoOutputURL = URL(fileURLWithPath: String(self.filePath.appendingPathComponent(fileName)))
+        if dirPathToSave != nil && dirPathToSave != "" {
+            var filePath:NSString = dirPathToSave as NSString
+            self.videoOutputURL = URL(fileURLWithPath: String(self.filePath.appendingPathComponent(fileName)))
+        } else {
+            self.filePath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0] as NSString
+            self.videoOutputURL = URL(fileURLWithPath: String(self.filePath.appendingPathComponent(fileName)))
+        }
         do {
             try FileManager.default.removeItem(at: videoOutputURL!)
         } catch let error as NSError{
