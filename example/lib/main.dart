@@ -71,7 +71,9 @@ class _HomePageState extends State<HomePage> {
         kDebugMode ? debugPrint('ERROR WAITING FOR READY: $e') : null;
       }
     } on PlatformException {
-      kDebugMode ? debugPrint("Error: An error occurred while starting the recording!") : null;
+      kDebugMode
+          ? debugPrint("Error: An error occurred while starting the recording!")
+          : null;
     }
   }
 
@@ -82,7 +84,9 @@ class _HomePageState extends State<HomePage> {
         _response = stopResponse;
       });
     } on PlatformException {
-      kDebugMode ? debugPrint("Error: An error occurred while stopping recording.") : null;
+      kDebugMode
+          ? debugPrint("Error: An error occurred while stopping recording.")
+          : null;
     }
   }
 
@@ -104,8 +108,12 @@ class _HomePageState extends State<HomePage> {
             Text("Video Hash: ${_response?['videohash']}"),
             Text("Start Date: ${(_response?['startdate']).toString()}"),
             Text("End Date: ${(_response?['enddate']).toString()}"),
-            ElevatedButton(onPressed: () => startRecord(fileName: "eren"), child: const Text('START RECORD')),
-            ElevatedButton(onPressed: () => stopRecord(), child: const Text('STOP RECORD')),
+            ElevatedButton(
+                onPressed: () => startRecord(fileName: "eren"),
+                child: const Text('START RECORD')),
+            ElevatedButton(
+                onPressed: () => stopRecord(),
+                child: const Text('STOP RECORD')),
           ],
         ),
       ),

@@ -34,7 +34,7 @@ class EdScreenRecorder {
     var response = await _channel.invokeMethod('startRecordScreen', {
       "audioenable": audioEnable,
       "filename": fileName,
-      "dirpathtosave":dirPathToSave,
+      "dirpathtosave": dirPathToSave,
       "addtimecode": addTimeCode,
       "videoframe": videoFrame,
       "videobitrate": videoBitrate,
