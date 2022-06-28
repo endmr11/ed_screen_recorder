@@ -6,7 +6,6 @@ Screen recorder plugin for Flutter. Supports IOS and Android devices.
 
 [![pubdev](https://img.shields.io/badge/pub-de__screen__recorder-blue)](https://pub.dev/packages/ed_screen_recorder)
 
-[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/erendemir)
 ## Ekler
 
 android/app/build.gradle
@@ -118,16 +117,14 @@ Simple, fast generation of RFC4122 UUIDs. [URL](https://pub.dev/packages/uuid)
 
 
 
-
 ## Contributors
 
-Thanks my friends Anıl and Mehmet for contributed.
+Thanks my friends Mehmet for contributed.
 
 Author: endmr11 [!["github"](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)](https://github.com/endmr11)
 
 mskayali [!["github"](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)](https://github.com/mskayali) 
 
-anilkayi  [!["github"](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)](https://github.com/anilkayi)
 
 
 

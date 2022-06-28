@@ -14,7 +14,7 @@ public class SwiftEdScreenRecorderPlugin: NSObject, FlutterPlugin {
   var videoWriterInput : AVAssetWriterInput?
 
   var fileName: String = ""
-    var dirPathToSave:NSString = ""
+  var dirPathToSave:NSString = ""
   var isAudioEnabled: Bool! = false;
   var addTimeCode: Bool! = false;
   var filePath: NSString = "";

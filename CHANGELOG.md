@@ -1,3 +1,7 @@
+## 0.0.11
+* Android library updated.
+* Android pause and resume record feature added.
+
 ## 0.0.10
 * Format.
 
