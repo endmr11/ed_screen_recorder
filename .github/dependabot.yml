@@ -1,0 +1,36 @@
+# See Dependabot documentation for all configuration options:
+# https://help.github.com/github/administering-a-repository/configuration-options-for-dependency-updates
+
+version: 2
+enable-beta-ecosystems: true
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    reviewers:
+      - "endmr11"
+  - package-ecosystem: "pub"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    reviewers:
+      - "endmr11"
+  - package-ecosystem: "pub"
+    directory: "/example"
+    schedule:
+      interval: "weekly"
+    reviewers:
+      - "endmr11"
+  - package-ecosystem: gradle
+    directory: "/example/android"
+    schedule:
+      interval: "weekly"
+    reviewers:
+      - "endmr11"
+  - package-ecosystem: gradle
+    directory: "/android"
+    schedule:
+      interval: "weekly"
+    reviewers:
+      - "endmr11"
