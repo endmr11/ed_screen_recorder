@@ -128,6 +128,7 @@ public class SwiftEdScreenRecorderPlugin: NSObject, FlutterPlugin {
         do {
             try FileManager.default.removeItem(at: videoOutputURL!)
         } catch let error as NSError{
+            print("Error", error);
             res = Bool(false);
         }
 

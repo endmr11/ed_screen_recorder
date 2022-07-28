@@ -1,3 +1,6 @@
+## 0.0.12
+*Android OS save to gallery problem solved.
+
 ## 0.0.11
 * Android library updated.
 * Android pause and resume record feature added.

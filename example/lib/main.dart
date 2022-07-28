@@ -6,6 +6,7 @@ import 'package:ed_screen_recorder/ed_screen_recorder.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:path_provider/path_provider.dart';
 
 void main() {
   runApp(const MyApp());
@@ -48,12 +49,14 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> startRecord({required String fileName}) async {
-    // Directory tempDir = await getTemporaryDirectory();
-    // String tempPath = tempDir.path;
+    Directory? tempDir = await getApplicationDocumentsDirectory();
+    String? tempPath = tempDir.path;
     try {
       var startResponse = await screenRecorder?.startRecordScreen(
         fileName: "Eren",
-        //dirPathToSave: tempPath, //Optional. It will save the video there when you give the file path with whatever you want.
+        //Optional. It will save the video there when you give the file path with whatever you want.
+        //If you leave it blank, the Android operating system will save it to the gallery.
+        dirPathToSave: tempPath, 
         audioEnable: false,
       );
       setState(() {

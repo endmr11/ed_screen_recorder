@@ -90,11 +90,9 @@ class EdScreenRecorder {
 
   Future<void> pauseRecord() async {
     await _channel.invokeMethod('pauseRecordScreen');
-    print("Pause Record");
   }
 
   Future<void> resumeRecord() async {
     await _channel.invokeMethod('resumeRecordScreen');
-    print("Resume Record");
   }
 }

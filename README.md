@@ -1,7 +1,7 @@
 
 # ED Flutter Screen Recorder
 
-Screen recorder plugin for Flutter. Supports IOS and Android devices.
+Screen recorder plugin for Flutter. Supports IOS and Android devices.It does not work on the IOS emulator!!!!
 
 
 [![pubdev](https://img.shields.io/badge/pub-de__screen__recorder-blue)](https://pub.dev/packages/ed_screen_recorder)
@@ -57,7 +57,9 @@ void initState() {
     // String tempPath = tempDir.path;
     var response = await edScreenRecorder?.startRecordScreen(
       fileName: fileName,
-      dirPathToSave: tempPath, //Optional. It will save the video there when you give the file path with whatever you want.
+      // `dirPathToSave` Optional. It will save the video there when you give the file path with whatever you want.
+      //If you leave it blank, the Android operating system will save it to the gallery.
+      dirPathToSave: tempPath,
       audioEnable: false,
     );
 
