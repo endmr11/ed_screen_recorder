@@ -72,7 +72,6 @@ public class SwiftEdScreenRecorderPlugin: NSObject, FlutterPlugin {
             } else {
                 width = Int32(width as! Int32);
             }
-            var height = args?["height"] // in pixels
             if(height == nil || height is NSNull) {
                 height = Int32(UIScreen.main.nativeBounds.height); // pixels
             } else {
