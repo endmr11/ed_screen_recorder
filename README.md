@@ -12,7 +12,7 @@ android/app/build.gradle
 ```dart
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation 'com.github.HBiSoft:HBRecorder:2.0.3'
+    implementation 'com.github.HBiSoft:HBRecorder:3.0.1'
     implementation 'androidx.appcompat:appcompat:1.4.1'
 }
 ```
