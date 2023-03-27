@@ -150,9 +150,7 @@ public class EdScreenRecorderPlugin implements FlutterPlugin, ActivityAware, Met
         if (requestCode == SCREEN_RECORD_REQUEST_CODE) {
             if (resultCode == Activity.RESULT_OK) {
                 if (data != null) {
-                    if (resultCode == Activity.RESULT_OK) {
-                        hbRecorder.startScreenRecording(data, resultCode, activity);
-                    }
+                    hbRecorder.startScreenRecording(data, resultCode);
                 }
             }
         }
@@ -222,6 +220,17 @@ public class EdScreenRecorderPlugin implements FlutterPlugin, ActivityAware, Met
     @Override
     public void HBRecorderOnError(int errorCode, String reason) {
         Log.e("Video Error:", reason);
+        flutterResult.error("Error", reason, null);
+    }
+
+    @Override
+    public void HBRecorderOnPause() {
+        flutterResult.success(true);
+    }
+
+    @Override
+    public void HBRecorderOnResume() {
+        flutterResult.success(true);
     }
 
     private Boolean startRecordingScreen() {

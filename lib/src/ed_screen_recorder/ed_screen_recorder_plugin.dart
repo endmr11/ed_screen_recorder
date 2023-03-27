@@ -88,11 +88,11 @@ class EdScreenRecorder {
     return formatResponse.toJson();
   }
 
-  Future<void> pauseRecord() async {
-    await _channel.invokeMethod('pauseRecordScreen');
+  Future<bool> pauseRecord() async {
+    return await _channel.invokeMethod('pauseRecordScreen');
   }
 
-  Future<void> resumeRecord() async {
-    await _channel.invokeMethod('resumeRecordScreen');
+  Future<bool> resumeRecord() async {
+    return await _channel.invokeMethod('resumeRecordScreen');
   }
 }

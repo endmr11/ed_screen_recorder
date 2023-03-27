@@ -17,7 +17,7 @@ public class SwiftEdScreenRecorderPlugin: NSObject, FlutterPlugin {
   var dirPathToSave:NSString = ""
   var isAudioEnabled: Bool! = false;
   var addTimeCode: Bool! = false;
-  var filePath: NSString = "";
+  var filePat h: NSString = "";
   var videoFrame: Int?;
   var videoBitrate: Int?;
   var fileOutputFormat: String? = "";
@@ -94,32 +94,38 @@ public class SwiftEdScreenRecorderPlugin: NSObject, FlutterPlugin {
             self.success=Bool(false)
         }
         myResult = result
-    }
-      struct JsonObj : Codable {
-        var success: Bool!
-        var file: String
-        var isProgress: Bool!
-        var eventname: String!
-        var message: String?
-        var videohash: String!
-        var startdate: Int?
-        var enddate: Int?
-      }
+        
+          struct JsonObj : Codable {
+            var success: Bool!
+            var file: String
+            var isProgress: Bool!
+            var eventname: String!
+            var message: String?
+            var videohash: String!
+            var startdate: Int?
+            var enddate: Int?
+          }
 
-      let jsonObject: JsonObj = JsonObj(
-        success: Bool(self.success),
-        file: String("\(self.filePath)/\(self.fileName)"),
-        isProgress: Bool(self.isProgress),
-        eventname: String(self.eventName ?? "eventName"),
-        message: String(self.message!),
-        videohash: String(self.videoHash),
-        startdate: Int(self.startDate ?? Int(NSDate().timeIntervalSince1970 * 1_000)),
-        enddate: Int(self.endDate ?? 0)
-      )
-      let encoder = JSONEncoder()
-      let json = try! encoder.encode(jsonObject)
-      let jsonStr = String(data:json,encoding: .utf8)
-      result(jsonStr)
+          let jsonObject: JsonObj = JsonObj(
+            success: Bool(self.success),
+            file: String("\(self.filePath)/\(self.fileName)"),
+            isProgress: Bool(self.isProgress),
+            eventname: String(self.eventName ?? "eventName"),
+            message: String(self.message!),
+            videohash: String(self.videoHash),
+            startdate: Int(self.startDate ?? Int(NSDate().timeIntervalSince1970 * 1_000)),
+            enddate: Int(self.endDate ?? 0)
+          )
+          let encoder = JSONEncoder()
+          let json = try! encoder.encode(jsonObject)
+          let jsonStr = String(data:json,encoding: .utf8)
+          result(jsonStr)
+    } else if (call.method == "pauseRecordingScreen") {
+        result(true)
+    }
+      else if (call.method == "resumeRecordingScreen") {
+        result(true)
+      }
   }
 
   func randomString(length: Int) -> String {
