@@ -70,12 +70,18 @@ class EdScreenRecorderPlugin : FlutterPlugin, ActivityAware, MethodCallHandler,
     }
 
     override fun onDetachedFromActivity() {}
+    fun setResult(startResult: MethodChannel.Result?, pauseResult: MethodChannel.Result?, resumeResult: MethodChannel.Result?, stopResult: MethodChannel.Result?, recentResult: MethodChannel.Result?) {
+        this.startResult = startResult
+        this.pauseResult = pauseResult
+        this.resumeResult = resumeResult
+        this.stopResult = stopResult
+        this.recentResult = recentResult
+    }
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
-        recentResult = result
         when (call.method) {
             "startRecordScreen" -> {
                 Log.i("TAG", "startRecordScreen: ")
-                startResult = result
+                setResult(result, null, null, null, result)
                 try {
                     isAudioEnabled = call.argument("audioenable")!!
                     fileName = call.argument("filename")
@@ -110,17 +116,17 @@ class EdScreenRecorderPlugin : FlutterPlugin, ActivityAware, MethodCallHandler,
             }
             "pauseRecordScreen" -> {
                 Log.i("TAG", "pauseRecordScreen: ")
-                pauseResult = result
+                setResult(null, result, null, null, result)
                 hbRecorder!!.pauseScreenRecording()
             }
             "resumeRecordScreen" -> {
                 Log.i("TAG", "resumeRecordScreen: ")
-                resumeResult = result
+                setResult(null, null, result, null, result)
                 hbRecorder!!.resumeScreenRecording()
             }
             "stopRecordScreen" -> {
                 Log.i("TAG", "stopRecordScreen: ")
-                stopResult = result
+                setResult(null, null, null, result, result)
                 endDate = call.argument("enddate")!!
                 hbRecorder!!.stopScreenRecording()
             }
@@ -197,9 +203,12 @@ class EdScreenRecorderPlugin : FlutterPlugin, ActivityAware, MethodCallHandler,
         val jsonObj = JSONObject(dataMap)
         try {
             Log.e("Video Complete:", jsonObj.toString())
-            stopResult!!.success(jsonObj.toString())
+            if (stopResult != null) {
+                stopResult!!.success(jsonObj.toString())
+             }
         } catch (e: Exception) {
             println("Error:" + e.message)
+            recentResult!!.error("HBRecorderOnComplete", e.message, 0)
         }
     }
 
@@ -210,7 +219,8 @@ class EdScreenRecorderPlugin : FlutterPlugin, ActivityAware, MethodCallHandler,
 
     override fun HBRecorderOnPause() {
         Log.i("Video Pause:", "Pause called")
-        pauseResult!!.success(true)
+            pauseResult!!.success(true)
+
     }
 
     override fun HBRecorderOnResume() {
