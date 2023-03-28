@@ -3,6 +3,18 @@ import UIKit
 import ReplayKit
 import Photos
 
+
+  struct JsonObj : Codable {
+    var success: Bool!
+    var file: String
+    var isProgress: Bool!
+    var eventname: String!
+    var message: String?
+    var videohash: String!
+    var startdate: Int?
+    var enddate: Int?
+  }
+
 public class SwiftEdScreenRecorderPlugin: NSObject, FlutterPlugin {
 
   let recorder = RPScreenRecorder.shared()
@@ -40,6 +52,7 @@ public class SwiftEdScreenRecorderPlugin: NSObject, FlutterPlugin {
   }
 
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+      
     if(call.method == "startRecordScreen"){
         let args = call.arguments as? Dictionary<String, Any>
         self.isAudioEnabled=((args?["audioenable"] as? Bool?)! ?? false)!
@@ -81,7 +94,20 @@ public class SwiftEdScreenRecorderPlugin: NSObject, FlutterPlugin {
         self.success=Bool(startRecording(width: width as! Int32 ,height: height as! Int32,dirPathToSave:(self.dirPathToSave as NSString) as String));
         self.startDate=Int(NSDate().timeIntervalSince1970 * 1_000)
         myResult = result
-
+        let jsonObject: JsonObj = JsonObj(
+          success: Bool(self.success),
+          file: String("\(self.filePath)/\(self.fileName)"),
+          isProgress: Bool(self.isProgress),
+          eventname: String(self.eventName ?? "eventName"),
+          message: String(self.message!),
+          videohash: String(self.videoHash),
+          startdate: Int(self.startDate ?? Int(NSDate().timeIntervalSince1970 * 1_000)),
+          enddate: Int(self.endDate ?? 0)
+        )
+        let encoder = JSONEncoder()
+        let json = try! encoder.encode(jsonObject)
+        let jsonStr = String(data:json,encoding: .utf8)
+        result(jsonStr)
     }else if(call.method == "stopRecordScreen"){
         
         if(videoWriter != nil){
@@ -94,17 +120,6 @@ public class SwiftEdScreenRecorderPlugin: NSObject, FlutterPlugin {
             self.success=Bool(false)
         }
         myResult = result
-        
-          struct JsonObj : Codable {
-            var success: Bool!
-            var file: String
-            var isProgress: Bool!
-            var eventname: String!
-            var message: String?
-            var videohash: String!
-            var startdate: Int?
-            var enddate: Int?
-          }
 
           let jsonObject: JsonObj = JsonObj(
             success: Bool(self.success),
