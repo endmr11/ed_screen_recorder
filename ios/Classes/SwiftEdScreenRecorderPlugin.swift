@@ -153,7 +153,7 @@ public class SwiftEdScreenRecorderPlugin: NSObject, FlutterPlugin {
     if(recorder.isAvailable){
         NSLog("startRecording: w x h = \(width) x \(height) pixels");
         if self.dirPathToSave != "" {
-            var _:NSString = dirPathToSave as NSString
+            self.filePath = dirPathToSave as NSString
             self.videoOutputURL = URL(fileURLWithPath: String(self.filePath.appendingPathComponent(fileName)))
         } else {
             self.filePath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0] as NSString
@@ -223,9 +223,10 @@ public class SwiftEdScreenRecorderPlugin: NSObject, FlutterPlugin {
                             case RPSampleBufferType.audioMic:
                                 if(self.isAudioEnabled){
                                     if self.audioInput?.isReadyForMoreMediaData == true {
-                                            print("starting audio....");
                                         if self.audioInput?.append(cmSampleBuffer) == false {
                                             print("Problems writing audio")
+                                            print(self.videoWriter?.status ?? "")
+                                            print(self.videoWriter?.error ?? "")
                                         }
                                     }
                                 }
