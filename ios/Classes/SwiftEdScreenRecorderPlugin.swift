@@ -17,7 +17,7 @@ public class SwiftEdScreenRecorderPlugin: NSObject, FlutterPlugin {
   var dirPathToSave:NSString = ""
   var isAudioEnabled: Bool! = false;
   var addTimeCode: Bool! = false;
-  var filePat h: NSString = "";
+  var filePath: NSString = "";
   var videoFrame: Int?;
   var videoBitrate: Int?;
   var fileOutputFormat: String? = "";
@@ -137,8 +137,8 @@ public class SwiftEdScreenRecorderPlugin: NSObject, FlutterPlugin {
      var res : Bool = true
     if(recorder.isAvailable){
         NSLog("startRecording: w x h = \(width) x \(height) pixels");
-        if dirPathToSave != nil && dirPathToSave != "" {
-            var filePath:NSString = dirPathToSave as NSString
+        if self.dirPathToSave != "" {
+            var _:NSString = dirPathToSave as NSString
             self.videoOutputURL = URL(fileURLWithPath: String(self.filePath.appendingPathComponent(fileName)))
         } else {
             self.filePath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0] as NSString
