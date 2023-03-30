@@ -161,7 +161,7 @@ public class SwiftEdScreenRecorderPlugin: NSObject, FlutterPlugin {
         do {
             let fileManager = FileManager.default
             if (fileManager.fileExists(atPath: videoOutputURL!.path)){
-            try FileManager.default.removeItem(at: videoOutputURL!)}
+                try FileManager.default.removeItem(at: videoOutputURL!)}
         } catch let error as NSError{
             print("Error", error);
             res = Bool(false);
@@ -264,14 +264,16 @@ public class SwiftEdScreenRecorderPlugin: NSObject, FlutterPlugin {
             if(self.isAudioEnabled) {
                 self.audioInput?.markAsFinished();
             }
+            if (self.dirPathToSave == ""){
 
             self.videoWriter?.finishWriting {
                 print("Finished writing video");
                 PHPhotoLibrary.shared().performChanges({
                     PHAssetChangeRequest.creationRequestForAssetFromVideo(atFileURL: self.videoOutputURL!)
                 })
-                self.message="stopRecordScreenFromApp"
-            }
+            }}
+            
+            self.message="stopRecordScreenFromApp"
         }else{
             self.message="You haven't start the recording unit now!"
         }
