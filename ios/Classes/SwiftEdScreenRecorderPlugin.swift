@@ -91,7 +91,7 @@ public class SwiftEdScreenRecorderPlugin: NSObject, FlutterPlugin {
                 height = Int32(height as! Int32);
             }
         }
-        self.success=Bool(startRecording(width: width as! Int32 ,height: height as! Int32,dirPathToSave:(self.dirPathToSave as NSString) as String));
+        self.success=Bool(startRecording(width: width as! Int32 ,height: height as! Int32));
         self.startDate=Int(NSDate().timeIntervalSince1970 * 1_000)
         myResult = result
         let jsonObject: JsonObj = JsonObj(
@@ -112,7 +112,6 @@ public class SwiftEdScreenRecorderPlugin: NSObject, FlutterPlugin {
         
         if(videoWriter != nil){
             self.success=Bool(stopRecording())
-            self.filePath=NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0] as NSString
             self.isProgress=Bool(false)
             self.eventName=String("stopRecordScreen")
             self.endDate=Int(NSDate().timeIntervalSince1970 * 1_000)
@@ -148,7 +147,7 @@ public class SwiftEdScreenRecorderPlugin: NSObject, FlutterPlugin {
     return String((0..<length).map{ _ in letters.randomElement()! })
   }
 
-    @objc func startRecording(width: Int32, height: Int32,dirPathToSave:String) -> Bool {
+    @objc func startRecording(width: Int32, height: Int32) -> Bool {
      var res : Bool = true
     if(recorder.isAvailable){
         NSLog("startRecording: w x h = \(width) x \(height) pixels");
@@ -160,7 +159,9 @@ public class SwiftEdScreenRecorderPlugin: NSObject, FlutterPlugin {
             self.videoOutputURL = URL(fileURLWithPath: String(self.filePath.appendingPathComponent(fileName)))
         }
         do {
-            try FileManager.default.removeItem(at: videoOutputURL!)
+            let fileManager = FileManager.default
+            if (fileManager.fileExists(atPath: videoOutputURL!.path)){
+            try FileManager.default.removeItem(at: videoOutputURL!)}
         } catch let error as NSError{
             print("Error", error);
             res = Bool(false);
