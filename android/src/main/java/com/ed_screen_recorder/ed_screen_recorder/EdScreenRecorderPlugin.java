@@ -39,7 +39,11 @@ PluginRegistry.ActivityResultListener, HBRecorderListener {
 
     private FlutterPluginBinding flutterPluginBinding;
     private ActivityPluginBinding activityPluginBinding;
-    Result flutterResult;
+    Result recentResult;
+    Result startRecordingResult;
+    Result stopRecordingResult;
+    Result pauseRecordingResult;
+    Result resumeRecordingResult;
     Activity activity;
     private static final int SCREEN_RECORD_REQUEST_CODE = 777;
     private HBRecorder hbRecorder;
@@ -56,6 +60,14 @@ PluginRegistry.ActivityResultListener, HBRecorderListener {
     String videoHash;
     long startDate;
     long endDate;
+
+    private void initializeResults() {
+        startRecordingResult = null;
+        stopRecordingResult = null;
+        pauseRecordingResult = null;
+        resumeRecordingResult = null;
+        recentResult = null;
+    }
 
     public static void registerWith(Registrar registrar) {
         final EdScreenRecorderPlugin instance = new EdScreenRecorderPlugin();
@@ -97,10 +109,12 @@ PluginRegistry.ActivityResultListener, HBRecorderListener {
 
     @Override
     public void onMethodCall(@NonNull MethodCall call, @NonNull Result result) {
-        this.flutterResult = result;
+        initializeResults();
+        recentResult = result;
         switch (call.method) {
             case "startRecordScreen":
                 try {
+                    startRecordingResult = result;
                     isAudioEnabled = call.argument("audioenable");
                     fileName = call.argument("filename");
                     dirPathToSave = call.argument("dirpathtosave");
@@ -128,17 +142,20 @@ PluginRegistry.ActivityResultListener, HBRecorderListener {
                     dataMap.put("startdate", startDate);
                     dataMap.put("enddate", endDate);
                     JSONObject jsonObj = new JSONObject(dataMap);
-                    result.success(jsonObj.toString());
+                    startRecordingResult.success(jsonObj.toString());
                     System.out.println("Error: " + e.getMessage());
                 }
                 break;
             case "pauseRecordScreen":
+                pauseRecordingResult = result;
                 hbRecorder.pauseScreenRecording();
                 break;
             case "resumeRecordScreen":
+                resumeRecordingResult = result;
                 hbRecorder.resumeScreenRecording();
                 break;
             case "stopRecordScreen":
+                stopRecordingResult = result;
                 endDate = call.argument("enddate");
                 hbRecorder.stopScreenRecording();
                 break;
@@ -188,7 +205,10 @@ PluginRegistry.ActivityResultListener, HBRecorderListener {
         dataMap.put("startdate", startDate);
         dataMap.put("enddate", null);
         JSONObject jsonObj = new JSONObject(dataMap);
-        flutterResult.success(jsonObj.toString());
+        if (startRecordingResult != null) {
+            startRecordingResult.success(jsonObj.toString());
+            startRecordingResult = null;
+        }
     }
 
     @Override
@@ -209,26 +229,38 @@ PluginRegistry.ActivityResultListener, HBRecorderListener {
         dataMap.put("enddate", endDate);
         JSONObject jsonObj = new JSONObject(dataMap);
         try {
-            flutterResult.success(jsonObj.toString());
+            if (stopRecordingResult != null) {
+                stopRecordingResult.success(jsonObj.toString());
+                stopRecordingResult = null;
+            }
         } catch (Exception e) {
             System.out.println("Error:" + e.getMessage());
+            recentResult.error("Error", e.getMessage(), null);
+            recentResult = null;
         }
     }
 
     @Override
     public void HBRecorderOnError(int errorCode, String reason) {
         Log.e("Video Error:", reason);
-        flutterResult.error("Error", reason, null);
+        recentResult.error("Error", reason, null);
+        recentResult = null;
     }
 
     @Override
     public void HBRecorderOnPause() {
-        flutterResult.success(true);
+        if (pauseRecordingResult != null) {
+            pauseRecordingResult.success(true);
+            pauseRecordingResult = null;
+        }
     }
 
     @Override
     public void HBRecorderOnResume() {
-        flutterResult.success(true);
+        if (resumeRecordingResult != null) {
+            resumeRecordingResult.success(true);
+            resumeRecordingResult = null;
+        }
     }
 
     private Boolean startRecordingScreen() {
