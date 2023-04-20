@@ -115,10 +115,10 @@ PluginRegistry.ActivityResultListener, HBRecorderListener {
             case "startRecordScreen":
                 try {
                     startRecordingResult = result;
-                    isAudioEnabled = call.argument("audioenable");
+                    isAudioEnabled = Boolean.TRUE.equals(call.argument("audioenable"));
                     fileName = call.argument("filename");
                     dirPathToSave = call.argument("dirpathtosave");
-                    addTimeCode = call.argument("addtimecode");
+                    addTimeCode = Boolean.TRUE.equals(call.argument("addtimecode"));
                     videoFrame = call.argument("videoframe");
                     videoBitrate = call.argument("videobitrate");
                     fileOutputFormat = call.argument("fileoutputformat");
@@ -143,6 +143,8 @@ PluginRegistry.ActivityResultListener, HBRecorderListener {
                     dataMap.put("enddate", endDate);
                     JSONObject jsonObj = new JSONObject(dataMap);
                     startRecordingResult.success(jsonObj.toString());
+                    startRecordingResult = null;
+                    recentResult = null;
                     System.out.println("Error: " + e.getMessage());
                 }
                 break;
@@ -208,6 +210,7 @@ PluginRegistry.ActivityResultListener, HBRecorderListener {
         if (startRecordingResult != null) {
             startRecordingResult.success(jsonObj.toString());
             startRecordingResult = null;
+            recentResult = null;
         }
     }
 
@@ -232,19 +235,24 @@ PluginRegistry.ActivityResultListener, HBRecorderListener {
             if (stopRecordingResult != null) {
                 stopRecordingResult.success(jsonObj.toString());
                 stopRecordingResult = null;
+                recentResult = null;
             }
         } catch (Exception e) {
             System.out.println("Error:" + e.getMessage());
+            if (recentResult != null) {
             recentResult.error("Error", e.getMessage(), null);
             recentResult = null;
+            }
         }
     }
 
     @Override
     public void HBRecorderOnError(int errorCode, String reason) {
         Log.e("Video Error:", reason);
-        recentResult.error("Error", reason, null);
-        recentResult = null;
+        if (recentResult != null) {
+            recentResult.error("Error", reason, null);
+            recentResult = null;
+        }
     }
 
     @Override
@@ -252,6 +260,7 @@ PluginRegistry.ActivityResultListener, HBRecorderListener {
         if (pauseRecordingResult != null) {
             pauseRecordingResult.success(true);
             pauseRecordingResult = null;
+            recentResult = null;
         }
     }
 
@@ -260,6 +269,7 @@ PluginRegistry.ActivityResultListener, HBRecorderListener {
         if (resumeRecordingResult != null) {
             resumeRecordingResult.success(true);
             resumeRecordingResult = null;
+            recentResult = null;
         }
     }
 
