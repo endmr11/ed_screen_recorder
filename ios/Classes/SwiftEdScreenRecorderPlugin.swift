@@ -42,8 +42,7 @@ public class SwiftEdScreenRecorderPlugin: NSObject, FlutterPlugin {
   var eventName: String! = "";
   var message: String? = "";
 
-    var startRecordingResult: FlutterResult?
-    var stopRecordingResult: FlutterResult?
+
   var myResult: FlutterResult?
 
   public static func register(with registrar: FlutterPluginRegistrar) {
@@ -53,9 +52,8 @@ public class SwiftEdScreenRecorderPlugin: NSObject, FlutterPlugin {
   }
 
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-      initAllResults()
+      
     if(call.method == "startRecordScreen"){
-        startRecordingResult = result
         let args = call.arguments as? Dictionary<String, Any>
         self.isAudioEnabled=((args?["audioenable"] as? Bool?)! ?? false)!
         self.fileName=(args?["filename"] as? String)!+".mp4"
@@ -63,36 +61,40 @@ public class SwiftEdScreenRecorderPlugin: NSObject, FlutterPlugin {
         self.addTimeCode=((args?["addtimecoe"] as? Bool?)! ?? false)!
         self.videoFrame=(args?["videoframe"] as? Int)!
         self.videoBitrate=(args?["videobitrate"] as? Int)!
-
         self.fileOutputFormat=(args?["fileoutputformat"] as? String)!
         self.fileExtension=(args?["fileextension"] as? String)!
         self.videoHash=(args?["videohash"] as? String)!
-
         self.isProgress=Bool(true)
         self.eventName=String("startRecordScreen")
-        
-        recorder.isMicrophoneEnabled = self.isAudioEnabled
-        
-        recorder.startRecording(handler: startRecordingHandler)
-    }else if(call.method == "stopRecordScreen"){
-        stopRecordingResult = result
-        if #available(iOS 14.0, *) {
-            let saveUrl = URL(fileURLWithPath:self.dirPathToSave.appendingPathComponent(self.fileName))
-            recorder.stopRecording(withOutput: saveUrl, completionHandler: stopRecordingHandler)
-        } else {
-            stopRecordingResult!(FlutterError(code: "Not Supported", message: "Current iOS Version is lower than 14", details: nil))
+        var width = args?["width"]; // in pixels
+        var height = args?["height"] // in pixels
+        if UIDevice.current.orientation.isLandscape {
+            if(width == nil || width is NSNull) {
+                width = Int32(UIScreen.main.nativeBounds.height); // pixels
+            } else {
+                width = Int32(height as! Int32);
+            }
+            if(height == nil || height is NSNull) {
+                height = Int32(UIScreen.main.nativeBounds.width); // pixels
+            } else {
+                height = Int32(width as! Int32);
+            }
+        }else{
+            if(width == nil || width is NSNull) {
+                width = Int32(UIScreen.main.nativeBounds.width); // pixels
+            } else {
+                width = Int32(width as! Int32);
+            }
+            if(height == nil || height is NSNull) {
+                height = Int32(UIScreen.main.nativeBounds.height); // pixels
+            } else {
+                height = Int32(height as! Int32);
+            }
         }
-    } else if (call.method == "pauseRecordingScreen") {
-        result(true)
-    }
-      else if (call.method == "resumeRecordingScreen") {
-        result(true)
-      }
-  }
-    
-    func startRecordingHandler(err:Error?) -> Void {
-        if err == nil {
-            let jsonObject: JsonObj = JsonObj(
+        self.success=Bool(startRecording(width: width as! Int32 ,height: height as! Int32));
+        self.startDate=Int(NSDate().timeIntervalSince1970 * 1_000)
+        myResult = result
+        let jsonObject: JsonObj = JsonObj(
           success: Bool(self.success),
           file: String("\(self.filePath)/\(self.fileName)"),
           isProgress: Bool(self.isProgress),
@@ -102,42 +104,178 @@ public class SwiftEdScreenRecorderPlugin: NSObject, FlutterPlugin {
           startdate: Int(self.startDate ?? Int(NSDate().timeIntervalSince1970 * 1_000)),
           enddate: Int(self.endDate ?? 0)
         )
-                    let encoder = JSONEncoder()
-                    let json = try! encoder.encode(jsonObject)
-                    let jsonStr = String(data:json,encoding: .utf8)
-                    startRecordingResult!(jsonStr)
-        } else {
-            startRecordingResult!(FlutterError(code: err!.localizedDescription, message: err?.localizedDescription, details: err?.localizedDescription))
-        }
-    }
-    
-    func stopRecordingHandler(err:Error?) -> Void {
-        if err != nil {
-            stopRecordingResult!(FlutterError(code: err!.localizedDescription, message: err?.localizedDescription, details: err?.localizedDescription))
-        } else {
-            let saveUrl = URL(fileURLWithPath:self.dirPathToSave.appendingPathComponent(self.fileName));
-            let jsonObject: JsonObj = JsonObj(
-                success: Bool(self.success),
-                file: String(saveUrl.absoluteURL.path),
-                isProgress: Bool(self.isProgress),
-                eventname: String(self.eventName ?? "eventName"),
-                message: String(self.message!),
-                videohash: String(self.videoHash),
-                startdate: Int(self.startDate ?? Int(NSDate().timeIntervalSince1970 * 1_000)),
-                enddate: Int(self.endDate ?? 0)
-              )
-                    let encoder = JSONEncoder()
-                    let json = try! encoder.encode(jsonObject)
-                    let jsonStr = String(data:json,encoding: .utf8)
-                    stopRecordingResult!(jsonStr)
-        }
+        let encoder = JSONEncoder()
+        let json = try! encoder.encode(jsonObject)
+        let jsonStr = String(data:json,encoding: .utf8)
+        result(jsonStr)
+    }else if(call.method == "stopRecordScreen"){
         
+        if(videoWriter != nil){
+            self.success=Bool(stopRecording())
+            self.isProgress=Bool(false)
+            self.eventName=String("stopRecordScreen")
+            self.endDate=Int(NSDate().timeIntervalSince1970 * 1_000)
+        }else{
+            self.success=Bool(false)
+        }
+        myResult = result
+
+          let jsonObject: JsonObj = JsonObj(
+            success: Bool(self.success),
+            file: String("\(self.filePath)/\(self.fileName)"),
+            isProgress: Bool(self.isProgress),
+            eventname: String(self.eventName ?? "eventName"),
+            message: String(self.message!),
+            videohash: String(self.videoHash),
+            startdate: Int(self.startDate ?? Int(NSDate().timeIntervalSince1970 * 1_000)),
+            enddate: Int(self.endDate ?? 0)
+          )
+          let encoder = JSONEncoder()
+          let json = try! encoder.encode(jsonObject)
+          let jsonStr = String(data:json,encoding: .utf8)
+          result(jsonStr)
+    } else if (call.method == "pauseRecordingScreen") {
+        result(true)
     }
-    
-    func initAllResults(){
-        startRecordingResult = nil
-        myResult = nil
+      else if (call.method == "resumeRecordingScreen") {
+        result(true)
+      }
+  }
+
+  func randomString(length: Int) -> String {
+    let letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+    return String((0..<length).map{ _ in letters.randomElement()! })
+  }
+
+    @objc func startRecording(width: Int32, height: Int32) -> Bool {
+     var res : Bool = true
+    if(recorder.isAvailable){
+        NSLog("startRecording: w x h = \(width) x \(height) pixels");
+        if self.dirPathToSave != "" {
+            self.filePath = dirPathToSave as NSString
+            self.videoOutputURL = URL(fileURLWithPath: String(self.filePath.appendingPathComponent(fileName)))
+        } else {
+            self.filePath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0] as NSString
+            self.videoOutputURL = URL(fileURLWithPath: String(self.filePath.appendingPathComponent(fileName)))
+        }
+        do {
+            let fileManager = FileManager.default
+            if (fileManager.fileExists(atPath: videoOutputURL!.path)){
+            try FileManager.default.removeItem(at: videoOutputURL!)}
+        } catch let error as NSError{
+            print("Error", error);
+            res = Bool(false);
+        }
+
+        do {
+            try videoWriter = AVAssetWriter(outputURL: videoOutputURL!, fileType: AVFileType.mp4)
+            self.message=String("Started Video")
+        } catch let writerError as NSError {
+            print("Error opening video file", writerError);
+            self.message=String(writerError as! Substring) as String
+            videoWriter = nil;
+            return  Bool(false)
+        }
+        if #available(iOS 11.0, *) {
+            recorder.isMicrophoneEnabled = isAudioEnabled
+            let videoSettings: [String : Any] = [
+                AVVideoCodecKey  : AVVideoCodecType.h264,
+                AVVideoWidthKey  : NSNumber.init(value: width),
+                AVVideoHeightKey : NSNumber.init(value: height),
+                AVVideoCompressionPropertiesKey: [
+                AVVideoProfileLevelKey: AVVideoProfileLevelH264HighAutoLevel,
+                AVVideoAverageBitRateKey: self.videoBitrate!
+               ],
+            ]
+            self.videoWriterInput = AVAssetWriterInput(mediaType: AVMediaType.video, outputSettings: videoSettings);
+            self.videoWriterInput?.expectsMediaDataInRealTime = true;
+            self.videoWriter?.add(videoWriterInput!);
+            if(isAudioEnabled){
+                let audioOutputSettings: [String : Any] = [
+                    AVNumberOfChannelsKey : 2,
+                    AVFormatIDKey : kAudioFormatMPEG4AAC,
+                    AVSampleRateKey: 44100,
+                    AVEncoderAudioQualityKey: AVAudioQuality.high.rawValue
+                ]
+                self.audioInput = AVAssetWriterInput(mediaType: AVMediaType.audio, outputSettings: audioOutputSettings)
+                self.audioInput?.expectsMediaDataInRealTime = true;
+                self.videoWriter?.add(audioInput!);
+            }
+        }
+            if #available(iOS 11.0, *) {
+                recorder.startCapture(handler: { 
+                    (cmSampleBuffer, rpSampleType, error) in guard error == nil else {
+                            return;
+                    }
+                    switch rpSampleType {
+                        case RPSampleBufferType.video:
+                            if self.videoWriter?.status == AVAssetWriter.Status.unknown {
+                                self.videoWriter?.startWriting()
+                                self.videoWriter?.startSession(atSourceTime:  CMSampleBufferGetPresentationTimeStamp(cmSampleBuffer));
+                            }else if self.videoWriter?.status == AVAssetWriter.Status.writing {
+                                if (self.videoWriterInput?.isReadyForMoreMediaData == true) {
+                                    if  self.videoWriterInput?.append(cmSampleBuffer) == false {
+                                        print("Problems writing video")
+                                        res = Bool(false)
+                                        self.message="Error starting capture";
+                                    }
+                                }
+                            }
+                            case RPSampleBufferType.audioMic:
+                                if(self.isAudioEnabled){
+                                    if self.audioInput?.isReadyForMoreMediaData == true {
+                                        if self.audioInput?.append(cmSampleBuffer) == false {
+                                            print("Problems writing audio")
+                                            print(self.videoWriter?.status ?? "")
+                                            print(self.videoWriter?.error ?? "")
+                                        }
+                                    }
+                                }
+                            default:
+                            break;
+                    }
+                }){(error) in guard error == nil else {
+                        print("Screen record not allowed");
+                        return
+                    }
+                }
+            }
+        }
+        return  Bool(res)
     }
-    
-    
+
+    @objc func stopRecording() -> Bool {
+        var res : Bool = true;
+        if(recorder.isRecording){
+            if #available(iOS 11.0, *) {
+                recorder.stopCapture( handler: { (error) in
+                    print("Stopping recording...");
+                    if(error != nil){
+                        res = Bool(false)
+                        self.message = "Has Got Error in stop record"
+                    }
+                })
+            } else {
+                res = Bool(false)
+                self.message="You dont Support this plugin"
+            }
+
+            self.videoWriterInput?.markAsFinished();
+            if(self.isAudioEnabled) {
+                self.audioInput?.markAsFinished();
+            }
+
+            self.videoWriter?.finishWriting {
+                print("Finished writing video");
+                PHPhotoLibrary.shared().performChanges({
+                    PHAssetChangeRequest.creationRequestForAssetFromVideo(atFileURL: self.videoOutputURL!)
+                })
+                self.message="stopRecordScreenFromApp"
+            }
+        }else{
+            self.message="You haven't start the recording unit now!"
+        }
+        return Bool(res);
+
+}
 }
