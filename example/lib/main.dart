@@ -49,14 +49,14 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> startRecord({required String fileName}) async {
-    Directory? tempDir = await getApplicationDocumentsDirectory();
+    Directory? tempDir = await getTemporaryDirectory();
     String? tempPath = tempDir.path;
     try {
       var startResponse = await screenRecorder?.startRecordScreen(
         fileName: "Eren",
         //Optional. It will save the video there when you give the file path with whatever you want.
         //If you leave it blank, the Android operating system will save it to the gallery.
-        dirPathToSave: tempPath, 
+        dirPathToSave: tempPath,
         audioEnable: false,
       );
       setState(() {
@@ -74,7 +74,9 @@ class _HomePageState extends State<HomePage> {
         kDebugMode ? debugPrint('ERROR WAITING FOR READY: $e') : null;
       }
     } on PlatformException {
-      kDebugMode ? debugPrint("Error: An error occurred while starting the recording!") : null;
+      kDebugMode
+          ? debugPrint("Error: An error occurred while starting the recording!")
+          : null;
     }
   }
 
@@ -85,7 +87,9 @@ class _HomePageState extends State<HomePage> {
         _response = stopResponse;
       });
     } on PlatformException {
-      kDebugMode ? debugPrint("Error: An error occurred while stopping recording.") : null;
+      kDebugMode
+          ? debugPrint("Error: An error occurred while stopping recording.")
+          : null;
     }
   }
 
@@ -93,7 +97,9 @@ class _HomePageState extends State<HomePage> {
     try {
       await screenRecorder?.pauseRecord();
     } on PlatformException {
-      kDebugMode ? debugPrint("Error: An error occurred while pause recording.") : null;
+      kDebugMode
+          ? debugPrint("Error: An error occurred while pause recording.")
+          : null;
     }
   }
 
@@ -101,7 +107,9 @@ class _HomePageState extends State<HomePage> {
     try {
       await screenRecorder?.resumeRecord();
     } on PlatformException {
-      kDebugMode ? debugPrint("Error: An error occurred while resume recording.") : null;
+      kDebugMode
+          ? debugPrint("Error: An error occurred while resume recording.")
+          : null;
     }
   }
 
@@ -123,10 +131,18 @@ class _HomePageState extends State<HomePage> {
             Text("Video Hash: ${_response?['videohash']}"),
             Text("Start Date: ${(_response?['startdate']).toString()}"),
             Text("End Date: ${(_response?['enddate']).toString()}"),
-            ElevatedButton(onPressed: () => startRecord(fileName: "eren"), child: const Text('START RECORD')),
-            ElevatedButton(onPressed: () => resumeRecord(), child: const Text('RESUME RECORD')),
-            ElevatedButton(onPressed: () => pauseRecord(), child: const Text('PAUSE RECORD')),
-            ElevatedButton(onPressed: () => stopRecord(), child: const Text('STOP RECORD')),
+            ElevatedButton(
+                onPressed: () => startRecord(fileName: "eren"),
+                child: const Text('START RECORD')),
+            ElevatedButton(
+                onPressed: () => resumeRecord(),
+                child: const Text('RESUME RECORD')),
+            ElevatedButton(
+                onPressed: () => pauseRecord(),
+                child: const Text('PAUSE RECORD')),
+            ElevatedButton(
+                onPressed: () => stopRecord(),
+                child: const Text('STOP RECORD')),
           ],
         ),
       ),

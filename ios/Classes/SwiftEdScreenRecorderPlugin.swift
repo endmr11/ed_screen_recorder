@@ -3,6 +3,18 @@ import UIKit
 import ReplayKit
 import Photos
 
+
+  struct JsonObj : Codable {
+    var success: Bool!
+    var file: String
+    var isProgress: Bool!
+    var eventname: String!
+    var message: String?
+    var videohash: String!
+    var startdate: Int?
+    var enddate: Int?
+  }
+
 public class SwiftEdScreenRecorderPlugin: NSObject, FlutterPlugin {
 
   let recorder = RPScreenRecorder.shared()
@@ -40,6 +52,7 @@ public class SwiftEdScreenRecorderPlugin: NSObject, FlutterPlugin {
   }
 
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+      
     if(call.method == "startRecordScreen"){
         let args = call.arguments as? Dictionary<String, Any>
         self.isAudioEnabled=((args?["audioenable"] as? Bool?)! ?? false)!
@@ -78,15 +91,27 @@ public class SwiftEdScreenRecorderPlugin: NSObject, FlutterPlugin {
                 height = Int32(height as! Int32);
             }
         }
-        self.success=Bool(startRecording(width: width as! Int32 ,height: height as! Int32,dirPathToSave:(self.dirPathToSave as NSString) as String));
+        self.success=Bool(startRecording(width: width as! Int32 ,height: height as! Int32));
         self.startDate=Int(NSDate().timeIntervalSince1970 * 1_000)
         myResult = result
-
+        let jsonObject: JsonObj = JsonObj(
+          success: Bool(self.success),
+          file: String("\(self.filePath)/\(self.fileName)"),
+          isProgress: Bool(self.isProgress),
+          eventname: String(self.eventName ?? "eventName"),
+          message: String(self.message!),
+          videohash: String(self.videoHash),
+          startdate: Int(self.startDate ?? Int(NSDate().timeIntervalSince1970 * 1_000)),
+          enddate: Int(self.endDate ?? 0)
+        )
+        let encoder = JSONEncoder()
+        let json = try! encoder.encode(jsonObject)
+        let jsonStr = String(data:json,encoding: .utf8)
+        result(jsonStr)
     }else if(call.method == "stopRecordScreen"){
         
         if(videoWriter != nil){
             self.success=Bool(stopRecording())
-            self.filePath=NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0] as NSString
             self.isProgress=Bool(false)
             self.eventName=String("stopRecordScreen")
             self.endDate=Int(NSDate().timeIntervalSince1970 * 1_000)
@@ -94,32 +119,27 @@ public class SwiftEdScreenRecorderPlugin: NSObject, FlutterPlugin {
             self.success=Bool(false)
         }
         myResult = result
-    }
-      struct JsonObj : Codable {
-        var success: Bool!
-        var file: String
-        var isProgress: Bool!
-        var eventname: String!
-        var message: String?
-        var videohash: String!
-        var startdate: Int?
-        var enddate: Int?
-      }
 
-      let jsonObject: JsonObj = JsonObj(
-        success: Bool(self.success),
-        file: String("\(self.filePath)/\(self.fileName)"),
-        isProgress: Bool(self.isProgress),
-        eventname: String(self.eventName ?? "eventName"),
-        message: String(self.message!),
-        videohash: String(self.videoHash),
-        startdate: Int(self.startDate ?? Int(NSDate().timeIntervalSince1970 * 1_000)),
-        enddate: Int(self.endDate ?? 0)
-      )
-      let encoder = JSONEncoder()
-      let json = try! encoder.encode(jsonObject)
-      let jsonStr = String(data:json,encoding: .utf8)
-      result(jsonStr)
+          let jsonObject: JsonObj = JsonObj(
+            success: Bool(self.success),
+            file: String("\(self.filePath)/\(self.fileName)"),
+            isProgress: Bool(self.isProgress),
+            eventname: String(self.eventName ?? "eventName"),
+            message: String(self.message!),
+            videohash: String(self.videoHash),
+            startdate: Int(self.startDate ?? Int(NSDate().timeIntervalSince1970 * 1_000)),
+            enddate: Int(self.endDate ?? 0)
+          )
+          let encoder = JSONEncoder()
+          let json = try! encoder.encode(jsonObject)
+          let jsonStr = String(data:json,encoding: .utf8)
+          result(jsonStr)
+    } else if (call.method == "pauseRecordingScreen") {
+        result(true)
+    }
+      else if (call.method == "resumeRecordingScreen") {
+        result(true)
+      }
   }
 
   func randomString(length: Int) -> String {
@@ -127,19 +147,21 @@ public class SwiftEdScreenRecorderPlugin: NSObject, FlutterPlugin {
     return String((0..<length).map{ _ in letters.randomElement()! })
   }
 
-    @objc func startRecording(width: Int32, height: Int32,dirPathToSave:String) -> Bool {
+    @objc func startRecording(width: Int32, height: Int32) -> Bool {
      var res : Bool = true
     if(recorder.isAvailable){
         NSLog("startRecording: w x h = \(width) x \(height) pixels");
-        if dirPathToSave != nil && dirPathToSave != "" {
-            var filePath:NSString = dirPathToSave as NSString
+        if self.dirPathToSave != "" {
+            self.filePath = dirPathToSave as NSString
             self.videoOutputURL = URL(fileURLWithPath: String(self.filePath.appendingPathComponent(fileName)))
         } else {
             self.filePath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0] as NSString
             self.videoOutputURL = URL(fileURLWithPath: String(self.filePath.appendingPathComponent(fileName)))
         }
         do {
-            try FileManager.default.removeItem(at: videoOutputURL!)
+            let fileManager = FileManager.default
+            if (fileManager.fileExists(atPath: videoOutputURL!.path)){
+            try FileManager.default.removeItem(at: videoOutputURL!)}
         } catch let error as NSError{
             print("Error", error);
             res = Bool(false);
@@ -202,9 +224,10 @@ public class SwiftEdScreenRecorderPlugin: NSObject, FlutterPlugin {
                             case RPSampleBufferType.audioMic:
                                 if(self.isAudioEnabled){
                                     if self.audioInput?.isReadyForMoreMediaData == true {
-                                            print("starting audio....");
                                         if self.audioInput?.append(cmSampleBuffer) == false {
                                             print("Problems writing audio")
+                                            print(self.videoWriter?.status ?? "")
+                                            print(self.videoWriter?.error ?? "")
                                         }
                                     }
                                 }

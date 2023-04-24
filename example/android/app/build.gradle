@@ -25,7 +25,7 @@ apply plugin: 'com.android.application'
 apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 
 android {
-    compileSdkVersion 31
+    compileSdkVersion 33
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -35,7 +35,7 @@ android {
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId "com.ed_screen_recorder.ed_screen_recorder_example"
-        minSdkVersion 21
+        minSdkVersion 24
         targetSdkVersion 31
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
@@ -55,6 +55,6 @@ flutter {
 }
 
 dependencies {
-    implementation 'com.github.HBiSoft:HBRecorder:2.0.3'
+    implementation 'com.github.HBiSoft:HBRecorder:3.0.1'
     implementation 'androidx.appcompat:appcompat:1.4.1'
 }
