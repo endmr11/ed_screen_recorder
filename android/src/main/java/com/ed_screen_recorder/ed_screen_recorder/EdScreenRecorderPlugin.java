@@ -136,7 +136,6 @@ public class EdScreenRecorderPlugin implements FlutterPlugin, ActivityAware, Met
                     startDate = call.argument("startdate");
                     customSettings(videoFrame, videoBitrate, fileOutputFormat, addTimeCode, fileName);
                     if (dirPathToSave != null) {
-                        System.out.println(">>>>>>>>>>> 1");
                         setOutputPath(addTimeCode, fileName, dirPathToSave);
                     }
                     if (isAudioEnabled) {
@@ -162,7 +161,6 @@ public class EdScreenRecorderPlugin implements FlutterPlugin, ActivityAware, Met
                     } else {
                         mediaPermission = true;
                     }
-                    System.out.println("lan>>>>> " + (ContextCompat.checkSelfPermission(flutterPluginBinding.getApplicationContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE)));
                     if (micPermission && mediaPermission) {
                         success = startRecordingScreen();
                     }
@@ -181,7 +179,6 @@ public class EdScreenRecorderPlugin implements FlutterPlugin, ActivityAware, Met
                     startRecordingResult.success(jsonObj.toString());
                     startRecordingResult = null;
                     recentResult = null;
-                    System.out.println("Error: " + e.getMessage());
                 }
                 break;
             case "pauseRecordScreen":
@@ -205,7 +202,6 @@ public class EdScreenRecorderPlugin implements FlutterPlugin, ActivityAware, Met
 
     @Override
     public boolean onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        System.out.println("PERMISSION CODE " + requestCode);
         if (requestCode == 333) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 micPermission = true;
@@ -292,7 +288,6 @@ public class EdScreenRecorderPlugin implements FlutterPlugin, ActivityAware, Met
                 recentResult = null;
             }
         } catch (Exception e) {
-            System.out.println("Error:" + e.getMessage());
             if (recentResult != null) {
                 recentResult.error("Error", e.getMessage(), null);
                 recentResult = null;
@@ -339,7 +334,6 @@ public class EdScreenRecorderPlugin implements FlutterPlugin, ActivityAware, Met
             activity.startActivityForResult(permissionIntent, SCREEN_RECORD_REQUEST_CODE);
             return true;
         } catch (Exception e) {
-            System.out.println("Error:" + e.getMessage());
             return false;
         }
     }
@@ -353,7 +347,6 @@ public class EdScreenRecorderPlugin implements FlutterPlugin, ActivityAware, Met
         hbRecorder.setVideoBitrate(videoBitrate);
         hbRecorder.setOutputFormat(fileOutputFormat);
         if (dirPathToSave == null) {
-            System.out.println(">>>>>>>>>>> 2" + fileName);
             hbRecorder.setFileName(generateFileName(fileName, addTimeCode));
         }
     }
