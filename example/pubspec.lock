@@ -303,14 +303,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.4"
-  watcher:
-    dependency: transitive
-    description:
-      name: watcher
-      sha256: "6a7f46926b01ce81bfc339da6a7f20afbe7733eff9846f6d6a5466aa4c6667c0"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.2"
   win32:
     dependency: transitive
     description:

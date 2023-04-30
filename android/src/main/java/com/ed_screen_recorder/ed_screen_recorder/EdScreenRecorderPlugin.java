@@ -1,12 +1,16 @@
 package com.ed_screen_recorder.ed_screen_recorder;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.media.projection.MediaProjectionManager;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.hbisoft.hbrecorder.HBRecorder;
 import com.hbisoft.hbrecorder.HBRecorderCodecInfo;
@@ -33,9 +37,11 @@ import io.flutter.plugin.common.MethodChannel.Result;
 import io.flutter.plugin.common.PluginRegistry;
 import io.flutter.plugin.common.PluginRegistry.Registrar;
 
-/** EdScreenRecorderPlugin */
+/**
+ * EdScreenRecorderPlugin
+ */
 public class EdScreenRecorderPlugin implements FlutterPlugin, ActivityAware, MethodCallHandler,
-PluginRegistry.ActivityResultListener, HBRecorderListener {
+        HBRecorderListener,PluginRegistry.ActivityResultListener, PluginRegistry.RequestPermissionsResultListener {
 
     private FlutterPluginBinding flutterPluginBinding;
     private ActivityPluginBinding activityPluginBinding;
@@ -60,6 +66,9 @@ PluginRegistry.ActivityResultListener, HBRecorderListener {
     String videoHash;
     long startDate;
     long endDate;
+
+    boolean micPermission = false;
+    boolean mediaPermission = false;
 
     private void initializeResults() {
         startRecordingResult = null;
@@ -130,7 +139,34 @@ PluginRegistry.ActivityResultListener, HBRecorderListener {
                         System.out.println(">>>>>>>>>>> 1");
                         setOutputPath(addTimeCode, fileName, dirPathToSave);
                     }
-                    success = startRecordingScreen();
+                    if (isAudioEnabled) {
+                        if (ContextCompat.checkSelfPermission(flutterPluginBinding.getApplicationContext(), Manifest.permission.RECORD_AUDIO)
+                                != PackageManager.PERMISSION_GRANTED) {
+                            ActivityCompat.requestPermissions(activity,
+                                    new String[]{Manifest.permission.RECORD_AUDIO},
+                                    333);
+                        } else {
+
+                            micPermission = true;
+                        }
+                    } else {
+                        micPermission = true;
+                    }
+
+                    if (ContextCompat.checkSelfPermission(flutterPluginBinding.getApplicationContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                            != PackageManager.PERMISSION_GRANTED) {
+
+                        ActivityCompat.requestPermissions(activity,
+                                new String[]{ Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                                444);
+                    } else {
+                        mediaPermission = true;
+                    }
+                    System.out.println("lan>>>>> " + (ContextCompat.checkSelfPermission(flutterPluginBinding.getApplicationContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE)));
+                    if (micPermission && mediaPermission) {
+                        success = startRecordingScreen();
+                    }
+
                 } catch (Exception e) {
                     Map<Object, Object> dataMap = new HashMap<Object, Object>();
                     dataMap.put("success", false);
@@ -168,8 +204,26 @@ PluginRegistry.ActivityResultListener, HBRecorderListener {
     }
 
     @Override
-    public boolean onActivityResult(int requestCode, int resultCode, Intent data) {
+    public boolean onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        System.out.println("PERMISSION CODE " + requestCode);
+        if (requestCode == 333) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                micPermission = true;
+            } else {
+                micPermission = false;
+            }
+        } else if (requestCode == 444) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                mediaPermission = true;
+            } else {
+                mediaPermission = false;
+            }
+        }
+        return true;
+    }
 
+    @Override
+    public boolean onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == SCREEN_RECORD_REQUEST_CODE) {
             if (resultCode == Activity.RESULT_OK) {
                 if (data != null) {
@@ -240,8 +294,8 @@ PluginRegistry.ActivityResultListener, HBRecorderListener {
         } catch (Exception e) {
             System.out.println("Error:" + e.getMessage());
             if (recentResult != null) {
-            recentResult.error("Error", e.getMessage(), null);
-            recentResult = null;
+                recentResult.error("Error", e.getMessage(), null);
+                recentResult = null;
             }
         }
     }
@@ -274,13 +328,14 @@ PluginRegistry.ActivityResultListener, HBRecorderListener {
     }
 
     private Boolean startRecordingScreen() {
+
         try {
             hbRecorder.enableCustomSettings();
             MediaProjectionManager mediaProjectionManager = (MediaProjectionManager) flutterPluginBinding
                     .getApplicationContext().getSystemService(Context.MEDIA_PROJECTION_SERVICE);
             Intent permissionIntent = mediaProjectionManager != null
-            ? mediaProjectionManager.createScreenCaptureIntent()
-            : null;
+                    ? mediaProjectionManager.createScreenCaptureIntent()
+                    : null;
             activity.startActivityForResult(permissionIntent, SCREEN_RECORD_REQUEST_CODE);
             return true;
         } catch (Exception e) {
@@ -290,7 +345,7 @@ PluginRegistry.ActivityResultListener, HBRecorderListener {
     }
 
     private void customSettings(int videoFrame, int videoBitrate, String fileOutputFormat, boolean addTimeCode,
-        String fileName) {
+                                String fileName) {
         hbRecorder.isAudioEnabled(isAudioEnabled);
         hbRecorder.setAudioSource("DEFAULT");
         hbRecorder.setVideoEncoder("DEFAULT");
@@ -311,9 +366,9 @@ PluginRegistry.ActivityResultListener, HBRecorderListener {
             filePath = dirFile.getAbsolutePath() + "/" + generateFileName(fileName, addTimeCode);
         } else {
             hbRecorder.setOutputPath(
-                flutterPluginBinding.getApplicationContext().getExternalCacheDir().getAbsolutePath());
+                    flutterPluginBinding.getApplicationContext().getExternalCacheDir().getAbsolutePath());
             filePath = flutterPluginBinding.getApplicationContext().getExternalCacheDir().getAbsolutePath() + "/"
-            + generateFileName(fileName, addTimeCode);
+                    + generateFileName(fileName, addTimeCode);
         }
 
     }
