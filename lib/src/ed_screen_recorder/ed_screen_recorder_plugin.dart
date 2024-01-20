@@ -14,7 +14,7 @@ class EdScreenRecorder {
   /// Thanks to the [uuid] and [videoHash] variables, we can detect that each recorded video is unique from each other.
   /// After the process, we get a model result called [RecordOutput].
   /// On the front end we can see this result as [Map] .
-  Future<Map<String, dynamic>> startRecordScreen(
+  Future<RecordOutput> startRecordScreen(
       {required String fileName,
       String? dirPathToSave,
       bool? addTimeCode = true,
@@ -22,8 +22,8 @@ class EdScreenRecorder {
       String? fileExtension = "mp4",
       int? videoBitrate = 3000000,
       int? videoFrame = 30,
-      int? width,
-      int? height,
+      required int width,
+      required int height,
       required bool audioEnable}) async {
     var uuid = const Uuid();
     String videoHash = uuid.v1().replaceAll('-', '');
@@ -39,8 +39,8 @@ class EdScreenRecorder {
       "fileextension": fileExtension,
       "videohash": videoHash,
       "startdate": dateNow,
-      "width": width ?? 0,
-      "height": height ?? 0,
+      "width": width,
+      "height": height,
     });
     var formatResponse = RecordOutput.fromJson(json.decode(response));
     if (kDebugMode) {
@@ -56,10 +56,10 @@ class EdScreenRecorder {
       End Date: ${formatResponse.endDate}
       """);
     }
-    return formatResponse.toJson();
+    return formatResponse;
   }
 
-  Future<Map<String, dynamic>> stopRecord() async {
+  Future<RecordOutput> stopRecord() async {
     var dateNow = DateTime.now().microsecondsSinceEpoch;
     var response = await _channel.invokeMethod('stopRecordScreen', {
       "enddate": dateNow,
@@ -79,7 +79,7 @@ class EdScreenRecorder {
       End Date: ${formatResponse.endDate}
       """);
     }
-    return formatResponse.toJson();
+    return formatResponse;
   }
 
   Future<bool> pauseRecord() async {

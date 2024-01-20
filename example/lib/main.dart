@@ -38,7 +38,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   EdScreenRecorder? screenRecorder;
-  Map<String, dynamic>? _response;
+  RecordOutput? _response;
   bool inProgress = false;
 
   @override
@@ -47,7 +47,7 @@ class _HomePageState extends State<HomePage> {
     screenRecorder = EdScreenRecorder();
   }
 
-  Future<void> startRecord({required String fileName}) async {
+  Future<void> startRecord({required String fileName, required int width, required int height}) async {
     Directory? tempDir = await getApplicationDocumentsDirectory();
     String? tempPath = tempDir.path;
     try {
@@ -57,6 +57,8 @@ class _HomePageState extends State<HomePage> {
         //If you leave it blank, the Android operating system will save it to the gallery.
         dirPathToSave: tempPath,
         audioEnable: true,
+        width: width,
+        height: height,
       );
       setState(() {
         _response = startResponse;
@@ -103,15 +105,22 @@ class _HomePageState extends State<HomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text("File: ${(_response?['file'] as File?)?.path}"),
-            Text("Status: ${(_response?['success']).toString()}"),
-            Text("Event: ${_response?['eventname']}"),
-            Text("Progress: ${(_response?['progressing']).toString()}"),
-            Text("Message: ${_response?['message']}"),
-            Text("Video Hash: ${_response?['videohash']}"),
-            Text("Start Date: ${(_response?['startdate']).toString()}"),
-            Text("End Date: ${(_response?['enddate']).toString()}"),
-            ElevatedButton(onPressed: () => startRecord(fileName: "eren"), child: const Text('START RECORD')),
+            Text("File: ${_response?.file.path}"),
+            Text("Status: ${_response?.success.toString()}"),
+            Text("Event: ${_response?.eventName}"),
+            Text("Progress: ${_response?.isProgress.toString()}"),
+            Text("Message: ${_response?.message}"),
+            Text("Video Hash: ${_response?.videoHash}"),
+            Text("Start Date: ${(_response?.startDate).toString()}"),
+            Text("End Date: ${(_response?.endDate).toString()}"),
+            ElevatedButton(
+              onPressed: () => startRecord(
+                fileName: "eren",
+                width: context.size?.width.toInt() ?? 0,
+                height: context.size?.height.toInt() ?? 0,
+              ),
+              child: const Text('START RECORD'),
+            ),
             ElevatedButton(onPressed: () => resumeRecord(), child: const Text('RESUME RECORD')),
             ElevatedButton(onPressed: () => pauseRecord(), child: const Text('PAUSE RECORD')),
             ElevatedButton(onPressed: () => stopRecord(), child: const Text('STOP RECORD')),

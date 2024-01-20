@@ -350,7 +350,7 @@ public class EdScreenRecorderPlugin implements FlutterPlugin, ActivityAware, Met
         hbRecorder.setVideoFrameRate(videoFrame);
         hbRecorder.setVideoBitrate(videoBitrate);
         hbRecorder.setOutputFormat(fileOutputFormat);
-        if (width != 0 && height != 0) {
+        if ((width != 0 && height != 0) && (width >= 720 || height >= 1520)) {
             hbRecorder.setScreenDimensions(height, width);
         }
         if (dirPathToSave == null) {

@@ -1,3 +1,7 @@
+## 0.0.14
+* Android & iOS start, stop process error fixed.
+* Gradle Update
+
 ## 0.0.13
 * Null Errors Fix
 * Permission Errors Fix.

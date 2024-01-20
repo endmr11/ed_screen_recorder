@@ -31,7 +31,6 @@ struct JsonObj : Codable {
 
 public class SwiftEdScreenRecorderPlugin: NSObject, FlutterPlugin {
     
-    //MARK: ReplayKit
     let recorder = RPScreenRecorder.shared()
     var videoOutputURL : URL?
     var videoWriter : AVAssetWriter?
@@ -194,12 +193,8 @@ public class SwiftEdScreenRecorderPlugin: NSObject, FlutterPlugin {
                     self.audioInput?.expectsMediaDataInRealTime = true;
                     self.videoWriter?.add(audioInput!);
                 }
-            }
-            if #available(iOS 11.0, *) {
-                recorder.startCapture(handler: {
-                    (cmSampleBuffer, rpSampleType, error) in guard error == nil else {
-                        return;
-                    }
+                
+                recorder.startCapture(handler: { (cmSampleBuffer, rpSampleType, error) in guard error == nil else { return }
                     switch rpSampleType {
                     case RPSampleBufferType.video:
                         if self.videoWriter?.status == AVAssetWriter.Status.unknown {
@@ -238,6 +233,7 @@ public class SwiftEdScreenRecorderPlugin: NSObject, FlutterPlugin {
         var res : Bool = true;
         if(recorder.isRecording){
             if #available(iOS 11.0, *) {
+                
                 recorder.stopCapture( handler: { (error) in
                     if(error != nil){
                         res = Bool(false)
@@ -260,10 +256,10 @@ public class SwiftEdScreenRecorderPlugin: NSObject, FlutterPlugin {
                 })
                 self.message="stopRecordScreenFromApp"
             }
-        }else{
+        } else{
             self.message="You haven't start the recording unit now!"
         }
-        return Bool(res);
+        return Bool(res)
         
     }
 }
