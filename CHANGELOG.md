@@ -1,3 +1,6 @@
+## 0.0.15
+* iOS optimization has been done.
+
 ## 0.0.14
 * Android & iOS start, stop process error fixed.
 * Gradle Update

@@ -230,36 +230,55 @@ public class SwiftEdScreenRecorderPlugin: NSObject, FlutterPlugin {
     }
     
     @objc func stopRecording() -> Bool {
-        var res : Bool = true;
-        if(recorder.isRecording){
+        var res: Bool = true
+        if recorder.isRecording {
             if #available(iOS 11.0, *) {
-                
-                recorder.stopCapture( handler: { (error) in
-                    if(error != nil){
-                        res = Bool(false)
-                        self.message = "Has Got Error in stop record"
+                recorder.stopCapture { error in
+                    if let error = error {
+                        res = false
+                        self.message = "Error in stopRecording: \(error.localizedDescription)"
+                    } else {
+                        DispatchQueue.main.async {
+                            if self.videoWriter?.status == .writing {
+                                self.videoWriterInput?.markAsFinished()
+                                if self.recorderConfig.isAudioEnabled {
+                                    self.audioInput?.markAsFinished()
+                                }
+
+                                self.videoWriter?.finishWriting {
+                                    DispatchQueue.main.async {
+                                        if self.videoWriter?.status == .completed {
+                                            PHPhotoLibrary.shared().performChanges({
+                                                PHAssetChangeRequest.creationRequestForAssetFromVideo(atFileURL: self.videoOutputURL!)
+                                            }) { success, error in
+                                                if success {
+                                                    self.message = "Video saved successfully."
+                                                } else {
+                                                    res = false
+                                                    self.message = "Failed to save video: \(error?.localizedDescription ?? "unknown error")"
+                                                }
+                                            }
+                                        } else {
+                                            res = false
+                                            self.message = "Failed to finish writing with status: \(self.videoWriter?.status.rawValue ?? -1)"
+                                        }
+                                    }
+                                }
+                            } else {
+                                res = false
+                                self.message = "Attempted to stop recording while writer status is: \(self.videoWriter?.status.rawValue ?? -1)"
+                            }
+                        }
                     }
-                })
+                }
             } else {
-                res = Bool(false)
-                self.message="You dont Support this plugin"
+                res = false
+                self.message = "iOS version does not support this plugin."
             }
-            
-            self.videoWriterInput?.markAsFinished();
-            if(recorderConfig.isAudioEnabled) {
-                self.audioInput?.markAsFinished();
-            }
-            
-            self.videoWriter?.finishWriting {
-                PHPhotoLibrary.shared().performChanges({
-                    PHAssetChangeRequest.creationRequestForAssetFromVideo(atFileURL: self.videoOutputURL!)
-                })
-                self.message="stopRecordScreenFromApp"
-            }
-        } else{
-            self.message="You haven't start the recording unit now!"
+        } else {
+            self.message = "Recording has not been started."
+            res = false
         }
-        return Bool(res)
-        
+        return res
     }
 }
